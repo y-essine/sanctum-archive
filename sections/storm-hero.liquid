@@ -1,0 +1,230 @@
+{%- liquid
+  assign link = section.settings.link | default: routes.all_products_collection_url
+  assign overlay = section.settings.overlay_opacity | divided_by: 100.0
+-%}
+
+<div class="storm-hero" style="--storm-overlay: {{ overlay }}; --storm-logo-width: {{ section.settings.logo_width }}px;">
+  <div class="storm-hero__bg" aria-hidden="true">
+    {%- if section.settings.video != blank -%}
+      {{ section.settings.video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false }}
+    {%- elsif section.settings.background_image != blank -%}
+      {{ section.settings.background_image | image_url: width: 1920 | image_tag: alt: '', loading: 'eager', fetchpriority: 'high' }}
+    {%- else -%}
+      <img src="{{ 'storm-bg.gif' | asset_url }}" alt="" width="480" height="249" fetchpriority="high">
+    {%- endif -%}
+  </div>
+
+  <div class="storm-hero__content">
+    <p class="storm-hero__logo">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 1600 | image_tag: alt: shop.name, sizes: '(min-width: 750px) 50vw, 90vw' }}
+      {%- elsif section.settings.title != blank -%}
+        {{ section.settings.title | escape }}
+      {%- else -%}
+        {%- comment -%} DEV ONLY: Revenge x Storm reference logo — type a logo text or upload a logo to replace {%- endcomment -%}
+        <img src="{{ 'hero-logo.png' | asset_url }}" alt="{{ shop.name | escape }}" width="1020" height="264">
+      {%- endif -%}
+    </p>
+
+    <a class="storm-hero__spin" href="{{ link }}">
+      {%- if section.settings.spin_image != blank -%}
+        {{ section.settings.spin_image | image_url: width: 1000 | image_tag: alt: section.settings.link_label, loading: 'eager' }}
+      {%- else -%}
+        <img src="{{ 'hero-spin.gif' | asset_url }}" alt="{{ section.settings.link_label | escape }}" width="463" height="260">
+      {%- endif -%}
+    </a>
+
+    {%- if section.settings.show_bolt -%}
+      <img class="storm-hero__bolt" src="{{ 'bolt.gif' | asset_url }}" alt="" width="480" height="306" loading="lazy">
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .storm-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    color: #fff;
+    text-align: center;
+    /* ponytail: clip-path + position: fixed child = background-attachment: fixed that also works on iOS */
+    clip-path: inset(0);
+  }
+
+  .storm-hero__bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: #0c0c10;
+
+    & img,
+    & video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* darken + film grain so the low-res GIF reads as intentional */
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at center, transparent 40%, rgb(0 0 0 / 0.6)),
+        linear-gradient(rgb(0 0 0 / var(--storm-overlay)), rgb(0 0 0 / var(--storm-overlay))),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+    }
+  }
+
+  .storm-hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: calc(var(--header-height, 80px) + 1rem) var(--page-margin, 16px) 3rem;
+  }
+
+  .storm-hero__logo {
+    margin: 0;
+    max-width: min(var(--storm-logo-width), 92vw);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3rem, 11vw, 8.5rem);
+    line-height: 0.9;
+    color: #fff;
+    text-shadow: 0 0 24px rgb(0 0 0 / 0.6), 0 0 2px rgb(0 0 0 / 0.8);
+    animation: storm-flicker 7s infinite;
+
+    & img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .storm-hero__spin {
+    display: block;
+    width: min(463px, 86vw);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.04);
+    }
+
+    & img {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 12px 24px rgb(0 0 0 / 0.5));
+    }
+  }
+
+  .storm-hero__bolt {
+    width: min(240px, 50vw);
+    height: auto;
+    margin-top: -2rem;
+  }
+
+  @keyframes storm-flicker {
+    0%, 92%, 96%, 100% { opacity: 1; }
+    93%, 95% { opacity: 0.4; text-shadow: 0 0 40px #fff; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .storm-hero__logo {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Storm hero",
+  "tag": "section",
+  "class": "storm-hero-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Background video",
+      "info": "Overrides the image. Defaults to the storm GIF."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Darken",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image",
+      "info": "Leave empty to use the text below."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Logo text",
+      "default": "Sanctum Archive"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Logo max width",
+      "min": 300,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "default": 1020
+    },
+    {
+      "type": "header",
+      "content": "Centerpiece"
+    },
+    {
+      "type": "image_picker",
+      "id": "spin_image",
+      "label": "Image or GIF",
+      "info": "Transparent GIF/PNG works best."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label (screen readers)",
+      "default": "Shop all"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bolt",
+      "label": "Show lightning bolt",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Storm hero"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,46 @@
+/* Sanctum Archive brand layer — loaded after base.css. Colors/fonts live in theme settings; this is only what settings can't do. */
+/* Creepster (OFL) self-hosted — not in Shopify's font library. Relative URL resolves next to this file on the CDN. */
+@font-face {
+  font-family: 'Creepster';
+  src: url('creepster.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --font-display: 'Creepster', var(--font-heading--family);
+  --sanctum-red: #dd3333;
+}
+
+::selection {
+  background: var(--sanctum-red);
+  color: #fff;
+}
+
+/* Text logo (when no logo image is uploaded) uses the horror display face */
+.header-logo.header-logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.75rem;
+  letter-spacing: 0.02em;
+}
+
+/* Nav: red bar under the active item, grey on hover (2018 site had it on top) */
+.menu-list__link-title {
+  padding-block: 4px;
+  background: linear-gradient(currentcolor, currentcolor) no-repeat left bottom / 0 2px;
+  transition: background-size 0.2s ease;
+}
+
+.menu-list__list-item:hover .menu-list__link-title {
+  background-size: 100% 2px;
+}
+
+.menu-list__link--active .menu-list__link-title {
+  background-image: linear-gradient(var(--sanctum-red), var(--sanctum-red));
+  background-size: 100% 2px;
+}
+
+/* Card hover: second image fades in (theme setting), plus a slight darken like the old quick-view overlay */
+.card-gallery:hover .product-media-container img {
+  filter: brightness(0.92);
+}

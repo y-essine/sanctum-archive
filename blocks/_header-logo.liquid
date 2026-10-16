@@ -57,6 +57,17 @@
     {% endif %}
     data-testid="header-logo"
   >
+    {%- comment -%} DEV ONLY: Revenge x Storm reference logo until a real logo is uploaded — remove before launch {%- endcomment -%}
+    {%- if settings.logo == blank -%}
+      <img
+        class="header-logo__image"
+        src="{{ 'header-logo.png' | asset_url }}"
+        alt="{{ shop.name | escape }}"
+        width="354"
+        height="88"
+        style="height: {{ settings.logo_height }}px; width: auto;"
+      >
+    {%- else -%}
     {% render 'image',
       image: settings.logo,
       class: 'header-logo__image',
@@ -65,6 +76,7 @@
       text_fallback: shop.name,
       style: logo_style
     %}
+    {%- endif -%}
   </span>
 
   {% if use_inverse_logo %}
